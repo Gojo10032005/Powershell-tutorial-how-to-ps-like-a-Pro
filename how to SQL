@@ -1,0 +1,22 @@
+SELECT * FROM employees WHERE department = 'ICT';
+
+
+
+SELECT firstname, lastname, email FROM employees WHERE status = 'Actief';
+
+
+
+SELECT department, COUNT(*) AS aantal_medewerkers 
+FROM employees 
+GROUP BY department;
+
+
+SELECT e.firstname, e.lastname, a.status_omschrijving 
+FROM employees e
+JOIN adstatus a ON e.status_id = a.status_id;
+
+
+
+UPDATE employees
+SET status_id = 2
+WHERE end_date IS NOT NULL;
