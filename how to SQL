@@ -20,3 +20,8 @@ JOIN adstatus a ON e.status_id = a.status_id;
 UPDATE employees
 SET status_id = 2
 WHERE end_date IS NOT NULL;
+
+
+
+
+https://www.youtube.com/watch?v=984K2cKkdd0&t=340s
