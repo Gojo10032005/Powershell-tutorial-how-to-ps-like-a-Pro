@@ -57,18 +57,18 @@ function Test-BestaandeGebruikers {
     )
 
     foreach ($user in $Gebruikers) {
-        $sam = $user.SamAccountName
-        if (-not $sam) {
-            Add-Log -Message "Lege SamAccountName in CSV"
+        $sam = $user.AccountName
+        if (-not $username) {
+            Add-Log -Message "Lege AccountName in CSV"
             continue
         }
 
-        if (Get-ADUser -Filter { SamAccountName -eq $sam } -Server $domainname -ErrorAction SilentlyContinue) {
-            Write-Host "Bestaande gebruiker gevonden: $sam" -ForegroundColor Green
-            Add-Log -Message "Gebruiker bestaat: $sam"
+        if (Get-ADUser -Filter { SamAccountName -eq $username } -Server $domainname -ErrorAction SilentlyContinue) {
+            Write-Host "Bestaande gebruiker gevonden: $username" -ForegroundColor Green
+            Add-Log -Message "Gebruiker bestaat: $username"
         } else {
-            Write-Host "Gebruiker bestaat niet: $sam" -ForegroundColor Red
-            Add-Log -Message "Gebruiker ontbreekt: $sam"
+            Write-Host "Gebruiker bestaat niet: $username" -ForegroundColor Red
+            Add-Log -Message "Gebruiker ontbreekt: $username"
         }
     }
 }
@@ -83,35 +83,35 @@ function Test-AanmaakGebruiker {
     )
 
     foreach ($user in $Gebruikers) {
-        $sam = $user.SamAccountName
-        if (-not $sam) {
-            Add-Log -Message "Geen SamAccountName opgegeven"
+        $username = $user.AccountName
+        if (-not $username) {
+            Add-Log -Message "Geen AccountName opgegeven"
             continue
         }
 
-        if (Get-ADUser -Filter { SamAccountName -eq $sam } -Server $domainname -ErrorAction SilentlyContinue) {
+        if (Get-ADUser -Filter { SamAccountName -eq $username } -Server $domainname -ErrorAction SilentlyContinue) {
             Write-Host "$sam bestaat al, wordt niet opnieuw aangemaakt." -ForegroundColor Yellow
             continue
         }
 
         Try {
             New-ADUser `
-                -SamAccountName $sam `
+                -AccountName $username `
                 -GivenName $user.Voornaam `
                 -Surname $user.Achternaam `
                 -Name "$($user.Voornaam) $($user.Achternaam)" `
                 -DisplayName "$($user.Voornaam) $($user.Achternaam)" `
-                -UserPrincipalName "$sam@$domainname" `
+                -UserPrincipalName "$@$domainname" `
                 -Path "OU=Test,DC=PurpleLab,DC=local" `
                 -AccountPassword (ConvertTo-SecureString "Welkom123!" -AsPlainText -Force) `
                 -Enabled $true
 
-            Write-Host "Gebruiker aangemaakt: $sam" -ForegroundColor Cyan
-            Add-Log -Message "Gebruiker aangemaakt: $sam"
+            Write-Host "Gebruiker aangemaakt: $username" -ForegroundColor Cyan
+            Add-Log -Message "Gebruiker aangemaakt: $username"
         }
         Catch {
-            Write-Host "Fout bij aanmaken gebruiker: $sam" -ForegroundColor Red
-            Add-Log -Message "Fout bij aanmaken gebruiker: $sam - $_"
+            Write-Host "Fout bij aanmaken gebruiker: $username" -ForegroundColor Red
+            Add-Log -Message "Fout bij aanmaken gebruiker: $username - $_"
         }
     }
 }
