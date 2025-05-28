@@ -1,0 +1,82 @@
+
+**A.Switch**   
+
+Wel automatiseren
+
+Deze gegevens kunnen automatisch worden uitgelezen met monitoringtools zoals SNMP of netwerkmanagementsystemen.
+
+**A.Proxy**
+
+Wel automatiseren
+
+Dit wordt meestal automatisch bijgehouden via een proxyserver of firewalllogs. Handmatige verwerking is niet haalbaar.
+
+**A.Wireless**
+
+Wel automatiseren
+
+Netwerkcontrollers houden dit automatisch bij. Automatiseren maakt realtime controle mogelijk.
+
+**A.Network**
+
+Wel automatiseren
+
+Netwerk monitoring software zoals NMS of assetmanagementtools kunnen dit continu bijhouden.
+
+
+**A.PaperPassword**
+
+Niet automatiseren
+
+Dit is lastig te automatiseren en vereist bewustwording en handmatige controles of audits.
+
+**A.Building**
+
+Wel automatiseren
+
+Toegangscontrole en aanwezigheidsregistratiesystemen kunnen dit automatisch registreren.
+
+**A.Lights**
+
+Wel automatiseren
+
+Kan worden gerealiseerd via bewegingssensoren of koppelvlak met aanwezigheidsdata.
+
+**A.Users**
+
+Wel automatiseren
+
+Dit is precies wat met het PowerShell-script uit bijlage 1 wordt gerealiseerd: automatische import van gebruikers.
+
+
+
+c1
+
+Het script controleerde correct de versie. Bij een oudere PowerShell-versie werd een duidelijke foutmelding gegeven en stopte het script zoals verwacht.
+
+
+c2
+
+Het script herkent correct "ja" en "nee", evenals "yes" en "no". Bij ongeldige invoer werd opnieuw gevraagd. Script stopt netjes bij “nee”.
+
+c3
+
+Bij een test zonder geïnstalleerde AD-module werd correct een foutmelding getoond en het script afgesloten. Werkt zoals verwacht.
+
+4.	Test bronbestand (csv-bestand)
+
+Het script detecteert afwezigheid van het bronbestand direct en toont een foutmelding. Script stopt zonder verdere verwerking.
+
+5.	#A1 test functie Add-ToLog
+
+Het script probeert correct te loggen. Als de map niet bestaat of niet beschrijfbaar is, volgt een nette foutmelding.
+
+6.	#A2 test bestaande gebruikers
+
+Het script herkent correct of een gebruiker al bestaat. Er wordt een foutmelding getoond en vastgelegd in het log.
+
+7.	#A3 test aanmaak gebruiker
+
+Alle gebruikers uit het .csv-bestand zijn juist aangemaakt. De naamconventie is correct toegepast, en gebruikers worden verplicht hun wachtwoord te wijzigen bij de eerste login
+
+
