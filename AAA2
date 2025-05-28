@@ -1,0 +1,134 @@
+function Add-ToLog(){
+    param (
+        [Parameter(Mandatory)] 
+        [string]$Message
+    )
+    $Path = "$PSScriptRoot\Log\ADUserlog.txt"
+    Try {
+        Add-Content -Path $Path -Value "$(Get-Date);$($env:computername);$($Message);$($MyInvocation.MyCommand.Name)" -ErrorAction Stop
+    }
+    Catch{
+        Write-Error "Kan geen gegevens wegschrijven naar $Path ."
+        Start-Sleep 5
+        exit
+    }
+}
+
+
+#######################
+### Configuratie    ###
+#######################
+
+$csvfile = "$PSScriptRoot\users.csv"
+$domainname = "PurpleLab.local"
+$logfolder = "$PSScriptRoot\Log"
+
+# Logmap aanmaken indien nodig
+if (-not (Test-Path $logfolder)) {
+    New-Item -ItemType Directory -Path $logfolder -Force | Out-Null
+}
+
+#############################
+### Functie: Add-Log      ###
+#############################
+function Add-Log {
+    param (
+        [Parameter(Mandatory)]
+        [string]$Message
+    )
+    $Path = "$logfolder\ADUserlog.txt"
+    Try {
+        Add-Content -Path $Path -Value "$(Get-Date);$($env:computername);$Message;Add-Log" -ErrorAction Stop
+    }
+    Catch {
+        Write-Error "Kan geen gegevens wegschrijven naar $Path."
+        Start-Sleep 5
+        exit
+    }
+}
+
+#############################################
+### Functie: Test-BestaandeGebruikers     ###
+#############################################
+function Test-BestaandeGebruikers {
+    param (
+        [Parameter(Mandatory)]
+        [array]$Gebruikers
+    )
+
+    foreach ($user in $Gebruikers) {
+        $sam = $user.SamAccountName
+        if (-not $sam) {
+            Add-Log -Message "Lege SamAccountName in CSV"
+            continue
+        }
+
+        if (Get-ADUser -Filter { SamAccountName -eq $sam } -Server $domainname -ErrorAction SilentlyContinue) {
+            Write-Host "Bestaande gebruiker gevonden: $sam" -ForegroundColor Green
+            Add-Log -Message "Gebruiker bestaat: $sam"
+        } else {
+            Write-Host "Gebruiker bestaat niet: $sam" -ForegroundColor Red
+            Add-Log -Message "Gebruiker ontbreekt: $sam"
+        }
+    }
+}
+
+#########################################
+### Functie: Test-AanmaakGebruiker    ###
+#########################################
+function Test-AanmaakGebruiker {
+    param (
+        [Parameter(Mandatory)]
+        [array]$Gebruikers
+    )
+
+    foreach ($user in $Gebruikers) {
+        $sam = $user.SamAccountName
+        if (-not $sam) {
+            Add-Log -Message "Geen SamAccountName opgegeven"
+            continue
+        }
+
+        if (Get-ADUser -Filter { SamAccountName -eq $sam } -Server $domainname -ErrorAction SilentlyContinue) {
+            Write-Host "$sam bestaat al, wordt niet opnieuw aangemaakt." -ForegroundColor Yellow
+            continue
+        }
+
+        Try {
+            New-ADUser `
+                -SamAccountName $sam `
+                -GivenName $user.Voornaam `
+                -Surname $user.Achternaam `
+                -Name "$($user.Voornaam) $($user.Achternaam)" `
+                -DisplayName "$($user.Voornaam) $($user.Achternaam)" `
+                -UserPrincipalName "$sam@$domainname" `
+                -Path "OU=Test,DC=PurpleLab,DC=local" `
+                -AccountPassword (ConvertTo-SecureString "Welkom123!" -AsPlainText -Force) `
+                -Enabled $true
+
+            Write-Host "Gebruiker aangemaakt: $sam" -ForegroundColor Cyan
+            Add-Log -Message "Gebruiker aangemaakt: $sam"
+        }
+        Catch {
+            Write-Host "Fout bij aanmaken gebruiker: $sam" -ForegroundColor Red
+            Add-Log -Message "Fout bij aanmaken gebruiker: $sam - $_"
+        }
+    }
+}
+
+#########################
+### Scriptuitvoering  ###
+#########################
+
+try {
+    $gebruikers = Import-Csv -Path $csvfile -ErrorAction Stop
+} catch {
+    Write-Host "Kan het CSV-bestand niet inlezen." -ForegroundColor Red
+    exit
+}
+
+Add-Log -Message "Start gebruikerscontrole"
+Test-BestaandeGebruikers -Gebruikers $gebruikers
+Add-Log -Message "Start test aanmaak gebruikers"
+Test-AanmaakGebruiker -Gebruikers $gebruikers
+Add-Log -Message "Script uitgevoerd"
