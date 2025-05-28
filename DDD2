@@ -1,0 +1,54 @@
+# D1 Importeren van gebruikersgegevens vanuit CSV-bestand
+Add-ToLog -Message "Start met importeren van gebruikersgegevens vanuit CSV-bestand" #M1
+
+# D2 Importeren van CSV-bestand in een variabele
+$ADUsers = Import-Csv $csvfile -Delimiter ";"
+
+foreach ($User in $ADUsers)
+{
+       $Username    = $User.username
+       $Password    = $User.password
+       $Firstname   = $User.firstname
+       $Lastname    = $User.lastname
+       $Department  = $User.department
+       $OU          = "OU=$Department,OU=PurpleLab,DC=purplelab,DC=local"
+
+       # D3 Controleren of gebruiker al bestaat in Active Directory
+       if (Get-ADUser -F {SamAccountName -eq $Username})
+       {
+            # D4 Gebruiker bestaat al, log waarschuwing
+            $Message = "Gebruiker '$Username' bestaat al in Active Directory. Aanmaken overgeslagen." #M2
+            Write-Warning $Message
+            Add-ToLog -Message $Message
+       }
+       else
+       {
+            # D5 Nieuwe gebruiker aanmaken in Active Directory
+            New-ADUser `
+            -SamAccountName $Username `
+            -UserPrincipalName "$Username@$Domainname" `
+            -Name "$Firstname $Lastname" `
+            -GivenName $Firstname `
+            -Surname $Lastname `
+            -Enabled $True `
+            -ChangePasswordAtLogon $True `
+            -DisplayName "$Lastname, $Firstname" `
+            -Department $Department `
+            -Path $OU `
+            -AccountPassword (convertto-securestring $Password -AsPlainText -Force)
+
+            # D6 Nieuwe gebruiker succesvol aangemaakt
+            $Message = "Gebruiker '$Username' succesvol aangemaakt in Active Directory." #M3
+            Write-Host $Message -ForegroundColor Yellow
+            Add-ToLog -Message $Message
+       }
+}
+
+#####################
+###    Afronden   ###
+#####################
+
+# D7 Afronden van het gebruikersimportproces
+$Message = "Importproces voltooid. Alle gebruikers zijn verwerkt." #M4
+Write-Host $Message -ForegroundColor Green
+Add-ToLog -Message $Message
