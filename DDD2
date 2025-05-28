@@ -52,3 +52,11 @@ foreach ($User in $ADUsers)
 $Message = "Importproces voltooid. Alle gebruikers zijn verwerkt." #M4
 Write-Host $Message -ForegroundColor Green
 Add-ToLog -Message $Message
+
+
+
+
+
+
+
+$gebruikers = Import-Csv "C:\Users\Dell\Desktop\W2 (powershell)\(dit hoort bij) W2 (powershell bestand)"
