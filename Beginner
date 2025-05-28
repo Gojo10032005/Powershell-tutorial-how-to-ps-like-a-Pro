@@ -1,0 +1,97 @@
+# ADUsers.ps1 – PowerShell script voor het importeren van gebruikers
+
+# ========== INITIALISATIE ==========
+# 1. Controleer PowerShell versie
+
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+    Write-Host "PowerShell versie moet 7 of hoger zijn. Script wordt gestopt."
+    exit
+} else {
+    Write-Host "PowerShell versie is OK: $($PSVersionTable.PSVersion.ToString())"
+}
+
+# 2. Vraag beheerder om toestemming
+do {
+    $input = Read-Host "Mag dit script worden uitgevoerd? (ja/nee)"
+} while ($input -notin @("ja", "nee"))
+
+if ($input -eq "nee") {
+    Write-Host "Script afgebroken door gebruiker."
+    exit
+}
+
+# 3. Controleer of Active Directory module geladen is
+if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
+    Write-Host "Active Directory module ontbreekt. Script wordt gestopt."
+    exit
+}
+Import-Module ActiveDirectory
+
+# 4. Controleer of CSV-bestand bestaat
+$csvPad = "C:\Scripts\users.csv"
+if (-not (Test-Path $csvPad)) {
+    Write-Host "CSV-bestand niet gevonden op $csvPad. Script wordt gestopt."
+    exit
+}
+
+# 5. Controleer of logmap bestaat
+
+$logPath = "C:\Scripts\Logs"
+
+if (-not (Test-Path $logPath)) {
+    New-Item -Path $logPath -ItemType Directory | Out-Null
+    Write-Host "Logmap is niet gevonden. Nieuwe map is aangemaakt op: $logPath"
+} else {
+    Write-Host "Logmap bestaat al op: $logPath"
+}
+
+$logFile = Join-Path $logPath "AD_Import_log.txt"
+
+
+# ========== UITVOERINGSFASE ==========
+# 6. Inlezen CSV
+$gebruikers = Import-Csv -Path $csvPad -Delimiter ";"
+
+foreach ($gebruiker in $gebruikers) {
+    $username = ($gebruiker.Voornaam + $gebruiker.Achternaam).ToLower()
+    $OU = "OU=$($gebruiker.Department),DC=bedrijf,DC=local"
+
+    Write-Host "Voorbeeld: gebruiker $username wordt voorbereid in OU $OU"
+}
+
+    # 7. Controleer of gebruiker al bestaat
+    if (Get-ADUser -Filter {SamAccountName -eq $username} -ErrorAction SilentlyContinue) {
+        Add-Content -Path $logFile -Value "Gebruiker $username bestaat al."
+        continue
+    }
+
+    # 8. Controleer of OU bestaat
+    if (-not (Get-ADOrganizationalUnit -Filter {Name -eq $gebruiker.Department} -ErrorAction SilentlyContinue)) {
+        Add-Content -Path $logFile -Value "FOUT: OU '$($gebruiker.Department)' bestaat niet voor gebruiker $username."
+        Write-Host "FOUT: OU '$($gebruiker.Department)' bestaat niet."
+        continue
+    }
+
+    # 9. Maak gebruiker aan
+    try {
+        New-ADUser `
+            -Name "$($gebruiker.Voornaam) $($gebruiker.Achternaam)" `
+            -GivenName $gebruiker.Voornaam `
+            -Surname $gebruiker.Achternaam `
+            -SamAccountName $username `
+            -UserPrincipalName $gebruiker.E-mailadres `
+            -AccountPassword (ConvertTo-SecureString $gebruiker.Wachtwoord -AsPlainText -Force) `
+            -Path $OU `
+            -Enabled $true `
+            -ChangePasswordAtLogon $true `
+            -EmailAddress $gebruiker.E-mailadres
+
+        Add-Content -Path $logFile -Value "Gebruiker $username succesvol aangemaakt in OU $($gebruiker.Department)."
+    } catch {
+        Add-Content -Path $logFile -Value "FOUT bij gebruiker $username: $_"
+    }
+}
+
+# ========== AFRONDING ==========
+Write-Host "Script is succesvol afgerond. Zie logbestand in $logFile."
+Add-Content -Path $logFile -Value "Script is succesvol afgerond op $(Get-Date)."
