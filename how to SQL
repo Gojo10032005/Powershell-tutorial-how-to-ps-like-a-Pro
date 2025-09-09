@@ -1,27 +1,34 @@
-SELECT * FROM employees WHERE department = 'ICT';
+**Select query's**
+
+1. Vraag alle informatie over de studenten op.
+SELECT * FROM studenten;
+
+2.Vraag het totaal aantal studenten op. Het veld moet weergegeven als totaal_studenten
+SELECT COUNT(*) AS totaal_studenten
+FROM studenten;
+
+3.Maak een overzicht met de velden naam, achternaam, telefoonnummer, adres en gebruikersnaam uit de tabel docenten.
+In de docententabel heb je geen gebruikersnaam die moet je dan zelf samenstellen met een "as" statement. Het is namelijk naam + achternaam.
+SELECT 
+    naam, 
+    achternaam, 
+    telefoonnummer, 
+    adres,
+    CONCAT(naam, achternaam) AS gebruikersnaam
+FROM docenten;
+
+4.Maak een overzicht van de docenten waarbij de waarde van het veld afdeling 1 tot en met 3 is.
+SELECT *
+FROM docenten
+WHERE afdeling BETWEEN 1 AND 3;
+
+**Database aanpassen**
+Voeg de volgende data toe aan de tabel:
+INSERT INTO lokalen (lokaalNummer, afdelingsCode) VALUES
+(10,0),
+(320,1),
+(201,2),
+(405,3),
+(505,4);
 
 
-
-SELECT firstname, lastname, email FROM employees WHERE status = 'Actief';
-
-
-
-SELECT department, COUNT(*) AS aantal_medewerkers 
-FROM employees 
-GROUP BY department;
-
-
-SELECT e.firstname, e.lastname, a.status_omschrijving 
-FROM employees e
-JOIN adstatus a ON e.status_id = a.status_id;
-
-
-
-UPDATE employees
-SET status_id = 2
-WHERE end_date IS NOT NULL;
-
-
-
-
-https://www.youtube.com/watch?v=984K2cKkdd0&t=340s
