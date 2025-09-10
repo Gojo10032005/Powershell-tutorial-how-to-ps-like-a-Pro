@@ -1,3 +1,39 @@
+**Insert query's**
+
+1.Voer deze uit voor de afdelingen;
+INSERT INTO afdelingen (afdelingsCode, afdeling) VALUES
+(1,'ICT'),
+(2,'Economie'),
+(3,'VeVa'),
+(4,'Marketing'),
+(5,'Logistiek');
+
+2.Voer deze uit voor de klassen;
+INSERT INTO klassen (klasCode) VALUES
+('A101'),
+('B202'),
+('C303'),
+('D404'),
+('E505');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 **Select query's**
 
 1. Vraag alle informatie over de studenten op.
