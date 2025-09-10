@@ -1,5 +1,6 @@
 https://www.w3schools.com/sql/default.asp
 
+SQL 1
 
 **Insert query's**
 
@@ -52,4 +53,51 @@ INSERT INTO lokalen (lokaalNummer, afdelingsCode) VALUES
 (405,3),
 (505,4);
 
+SQL 2
+
+
+**Toevoegen nieuwe tabel**
+
+1. Maak een nieuwe tabel genaamd kamers aan in de database (zie het bovenstaande ERD).
+2.Voeg daarna 3 kamers toe met de volgende gegevens;
+Kamernummer: 101 type: Eenpersoons
+Kamernummer: 102 type: Tweepersoons
+Kamernummer: 103 type: Suite
+INSERT INTO kamers (kamernummer, type) VALUES          
+(101, 'Eenpersoons'),
+(102, 'Tweepersoons'),
+(103, 'Suite');
+
+ SELECT * FROM kamers;    #controlle#
+
+Maak vervolgens een relatie in de reserveringen tabel met de kamerNummer naar de Kamers tabel (FOREIGN KEY).
+
+**Select query's**
+
+1.Vraag alle informatie over de reserveringen op.
+SELECT * FROM reserveringen;
+
+2.Vraag het totaal aantal reserveringen op. Het veld moet weergegeven als totaal_reserveringen
+SELECT COUNT(*) AS totaal_reserveringen FROM reserveringen;
+
+3.Maak een overzicht met de velden naam, achternaam, telefoonnummer en gebruikersnaam uit de tabel klanten.
+3.1.In de klantentabel heb je geen gebruikersnaam die moet je dan zelf samenstellen met een "as" statement. Het is namelijk naam + achternaam.
+SELECT
+  naam,
+  achternaam,
+  telefoonnummer,
+  CONCAT(naam, achternaam) AS gebruikersnaam
+FROM klanten;
+
+4.Maak een overzicht van de reserveringen waarbij de waarde van het veld totalePrijs tussen de 100 en 200 zit.
+SELECT * FROM reserveringen
+WHERE totalePrijs BETWEEN 100 AND 200;
+
+5.Vraag alle informatie over de reserveringen op en geef de startDatum op een aflopende volgorde weer.
+SELECT * FROM reserveringen
+ORDER BY startDatum DESC;
+
+6.Vraag alle informatie over de reserveringen op en geef de startDatum op een oplopende volgorde weer.
+SELECT * FROM reserveringen
+ORDER BY startDatum ASC;
 
