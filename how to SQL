@@ -1,3 +1,6 @@
+https://www.w3schools.com/sql/default.asp
+
+
 **Insert query's**
 
 1.Voer deze uit voor de afdelingen;
@@ -15,24 +18,6 @@ INSERT INTO klassen (klasCode) VALUES
 ('C303'),
 ('D404'),
 ('E505');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 **Select query's**
 
